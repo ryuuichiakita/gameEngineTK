@@ -41,6 +41,7 @@
 #include <stdexcept>
 
 
+
 namespace DX
 {
     inline void ThrowIfFailed(HRESULT hr)
