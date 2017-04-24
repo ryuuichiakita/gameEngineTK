@@ -63,6 +63,27 @@ void Game::Initialize(HWND window, int width, int height)
 		m_inputLayout.GetAddressOf());
 	//デバックカメラの生成
 	m_debugCamera = std::make_unique<DebugCamera>(m_outputWidth, m_outputHeight);
+
+	//エフェクトファクトリー生成
+	m_factory = std::make_unique<EffectFactory>(m_d3dDevice.Get());
+	//テクスチャの読み込みフォルダを指定
+	m_factory->SetDirectory(L"Resources");
+
+
+	//モデルの読み込み(空)
+	m_modelSkydome = Model::CreateFromCMO
+	(m_d3dDevice.Get(),
+		L"Resources/skyDome.cmo",
+		*m_factory);
+	//モデルの読み込み(地面)
+
+
+	m_modelGround = Model::CreateFromCMO
+	(m_d3dDevice.Get(),
+		L"Resources/Ground1m.cmo",
+		*m_factory);
+
+
 }
 
 // Executes the basic game loop.
@@ -125,6 +146,8 @@ void Game::Render()
 	//ここに描画やで
 	//・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・・
 
+
+
 	m_states = std::make_unique<CommonStates>(m_d3dDevice.Get());
 	m_d3dContext->OMSetBlendState(m_states->Opaque(), nullptr, 0xFFFFFFFF);
 	m_d3dContext->OMSetDepthStencilState(m_states->DepthNone(), 0);
@@ -138,7 +161,7 @@ void Game::Render()
 	//デバックカメラからビュー行列を取得
 	m_view = m_debugCamera->GetCameraMatrix();
 	m_proj = Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
-		float(m_outputWidth) / float(m_outputHeight), 0.1f, 10.f);
+		float(m_outputWidth) / float(m_outputHeight), 0.1f, 200.f);
 
 	m_effect->SetView(m_view);
 	m_effect->SetProjection(m_proj);
@@ -146,9 +169,17 @@ void Game::Render()
 	m_effect->Apply(m_d3dContext.Get());
 	m_d3dContext->IASetInputLayout(m_inputLayout.Get());
 
+	//空を描画
+	m_modelSkydome->Draw(m_d3dContext.Get(),
+		*m_states, m_world, m_view, m_proj);
+
+	//地面を描画
+	m_modelGround->Draw(m_d3dContext.Get(),
+		*m_states,m_world,m_view,m_proj);
+
 
 	////描画部分
-	//m_batch->Begin();
+	m_batch->Begin();
 	//m_batch->DrawLine(
 	//	VertexPositionColor
 	//	(SimpleMath::Vector3(0,0,0),
