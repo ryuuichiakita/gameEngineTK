@@ -86,4 +86,10 @@ private:
 	std::unique_ptr<DirectX::Model> m_modelSkydome;
 	std::unique_ptr<DirectX::Model> m_modelGround;
 
+	std::unique_ptr<DirectX::Model> m_modelkyuu;
+
+
+	//‹…‚Ìƒ[ƒ‹ƒhs—ñ
+	DirectX::SimpleMath::Matrix m_worldkyuu;
+
 };
