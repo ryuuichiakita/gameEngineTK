@@ -69,7 +69,6 @@ void Game::Initialize(HWND window, int width, int height)
 	//テクスチャの読み込みフォルダを指定
 	m_factory->SetDirectory(L"Resources");
 
-
 	//モデルの読み込み(空)
 	m_modelSkydome = Model::CreateFromCMO
 	(m_d3dDevice.Get(),
@@ -77,10 +76,9 @@ void Game::Initialize(HWND window, int width, int height)
 		*m_factory);
 	//モデルの読み込み(地面)
 
-
 	m_modelGround = Model::CreateFromCMO
 	(m_d3dDevice.Get(),
-		L"Resources/Ground1m.cmo",
+		L"Resources/Ground200m.cmo",
 		*m_factory);
 
 	m_modelkyuu = Model::CreateFromCMO
@@ -115,27 +113,53 @@ void Game::Update(DX::StepTimer const& timer)
 
 	//球のワールド行列を計算
 	//スケーリング
-	Matrix scalemat = Matrix::CreateScale(1.0f);
+	Matrix scalemat = Matrix::CreateScale(1.4f);
 
+	////ロールZ
+	//Matrix rotamatZ = Matrix::CreateRotationZ(XMConvertToRadians(0.0f));
+	////ピッチX（仰角）
+	//Matrix rotamatX = Matrix::CreateRotationX(XMConvertToRadians(0.0f));
 
-
-	//ロールZ
-	Matrix rotamatZ = Matrix::CreateRotationZ(XMConvertToRadians(0.0f));
 	
-	//ピッチX（仰角）
-	Matrix rotamatX = Matrix::CreateRotationX(XMConvertToRadians(0.0f));
 
-	//ヨーY（方位）
-	Matrix rotamatY = Matrix::CreateRotationY(XMConvertToRadians(0.0f));
+	for (int i=0; i < 21; i++)
+	{
+		//内側
+		if (i < 10)
+		{
+			//ヨーY（方位）
+			Matrix rotamatY = Matrix::CreateRotationY(XMConvertToRadians(i * 36)+time*0.05f);
+			//回転合成
+			Matrix rotmat = rotamatY;
+			//平行移動
+			Matrix transmat = Matrix::CreateTranslation(20.0f, 0.0f, 0.0f);
+			//ワールド行列の合成
+			m_worldkyuu[i] = scalemat  * transmat* rotmat;
+		}
+		//外側
+		else if(i < 20)
+		{
+			//ヨーY（方位）
+			Matrix rotamatY = Matrix::CreateRotationY(XMConvertToRadians(i * 36)-time*0.05f);
+			//回転合成
+			Matrix rotmat =rotamatY;
+			//平行移動
+			Matrix transmat = Matrix::CreateTranslation(40.0f, 0.0f, 0.0f);
+			//ワールド行列の合成
+			m_worldkyuu[i] = scalemat  * transmat* rotmat;
+		}
+		else
+		{
+			Matrix scalemat = Matrix::CreateScale(3.0f);
+			//ヨーY（方位）
+			Matrix rotamatY = Matrix::CreateRotationY(XMConvertToRadians(0.0f));
+			//ワールド行列の合成
+			m_worldkyuu[i] = scalemat;
+		}
+	}
 
-	//回転合成
-	Matrix rotmat = rotamatZ * rotamatX * rotamatY;
-
-	//平行移動
-	Matrix transmat = Matrix::CreateTranslation(0.0f,0.0f,0.0f);
-
-	//ワールド行列の合成
-	m_worldkyuu = scalemat * rotmat * transmat;
+	//回転させるカウンターを図るタイム
+	time++;
 
 
 }
@@ -202,24 +226,21 @@ void Game::Render()
 	m_modelSkydome->Draw(m_d3dContext.Get(),
 		*m_states, m_world, m_view, m_proj);
 
+
 	//地面を描画
 	m_modelGround->Draw(m_d3dContext.Get(),
 		*m_states,m_world,m_view,m_proj);
 
 
-
-
+	for (int i=0; i < 21; i++)
+	{
 		//球を描画
-	m_modelkyuu->Draw(m_d3dContext.Get(),
-		*m_states,
-		m_worldkyuu,
-		m_view,
-		m_proj);
-
-
-
-
-
+		m_modelkyuu->Draw(m_d3dContext.Get(),
+			*m_states,
+			m_worldkyuu[i],
+			m_view,
+			m_proj);
+	}
 
 
 	////描画部分

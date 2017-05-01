@@ -55,6 +55,8 @@ private:
     int                                             m_outputWidth;
     int                                             m_outputHeight;
 
+	float time = 0;
+
     D3D_FEATURE_LEVEL                               m_featureLevel;
     Microsoft::WRL::ComPtr<ID3D11Device>            m_d3dDevice;
     Microsoft::WRL::ComPtr<ID3D11Device1>           m_d3dDevice1;
@@ -90,6 +92,8 @@ private:
 
 
 	//ãÖÇÃÉèÅ[ÉãÉhçsóÒ
-	DirectX::SimpleMath::Matrix m_worldkyuu;
+	DirectX::SimpleMath::Matrix m_worldkyuu[21];
+
+//#define WORLD_KYUU 10;
 
 };
