@@ -4,8 +4,7 @@
 
 #include "pch.h"
 #include "Game.h"
-
-
+#include <ctime>
 
 extern void ExitGame();
 
@@ -85,6 +84,36 @@ void Game::Initialize(HWND window, int width, int height)
 	(m_d3dDevice.Get(),
 		L"Resources/kyuu.cmo",
 		*m_factory);
+
+	//ポット
+	pot = Model::CreateFromCMO
+	(m_d3dDevice.Get(),
+		L"Resources/pot.cmo",
+		*m_factory);
+
+
+	//ロボットの頭
+	head = Model::CreateFromCMO
+	(m_d3dDevice.Get(),
+		L"Resources/head.cmo",
+		*m_factory);
+
+	srand(static_cast<unsigned int>(time(nullptr)));
+	keyboard = std::make_unique<Keyboard>();
+
+	Matrix scalemat = Matrix::CreateScale(1.0f);
+	for (int j = 0; j < 20; j++)
+	{
+		//ヨーY（方位）
+		Matrix rotamatY = Matrix::CreateRotationY(XMConvertToRadians(rand() % 360));
+		//回転合成
+		Matrix rotmat = rotamatY;
+		//平行移動
+		Matrix transmat = Matrix::CreateTranslation(rand() % 100, 0.0f, 0.0f);
+		//ワールド行列の合成
+		m_worldpot[j] = scalemat  * transmat* rotmat;
+	}
+	tank_angle = 0;
 }
 
 // Executes the basic game loop.
@@ -113,54 +142,100 @@ void Game::Update(DX::StepTimer const& timer)
 
 	//球のワールド行列を計算
 	//スケーリング
-	Matrix scalemat = Matrix::CreateScale(1.4f);
-
+	//Matrix scalemat = Matrix::CreateScale(1.0f);
 	////ロールZ
 	//Matrix rotamatZ = Matrix::CreateRotationZ(XMConvertToRadians(0.0f));
 	////ピッチX（仰角）
 	//Matrix rotamatX = Matrix::CreateRotationX(XMConvertToRadians(0.0f));
 
-	
 
-	for (int i=0; i < 21; i++)
-	{
-		//内側
-		if (i < 10)
-		{
-			//ヨーY（方位）
-			Matrix rotamatY = Matrix::CreateRotationY(XMConvertToRadians(i * 36)+time*0.05f);
-			//回転合成
-			Matrix rotmat = rotamatY;
-			//平行移動
-			Matrix transmat = Matrix::CreateTranslation(20.0f, 0.0f, 0.0f);
-			//ワールド行列の合成
-			m_worldkyuu[i] = scalemat  * transmat* rotmat;
-		}
-		//外側
-		else if(i < 20)
-		{
-			//ヨーY（方位）
-			Matrix rotamatY = Matrix::CreateRotationY(XMConvertToRadians(i * 36)-time*0.05f);
-			//回転合成
-			Matrix rotmat =rotamatY;
-			//平行移動
-			Matrix transmat = Matrix::CreateTranslation(40.0f, 0.0f, 0.0f);
-			//ワールド行列の合成
-			m_worldkyuu[i] = scalemat  * transmat* rotmat;
-		}
-		else
-		{
-			Matrix scalemat = Matrix::CreateScale(3.0f);
-			//ヨーY（方位）
-			Matrix rotamatY = Matrix::CreateRotationY(XMConvertToRadians(0.0f));
-			//ワールド行列の合成
-			m_worldkyuu[i] = scalemat;
-		}
-	}
+
+
+
+
+	//for (int i=0; i < 21; i++)
+	//{
+	//	//内側
+	//	if (i < 10)
+	//	{
+	//		//ヨーY（方位）
+	//		Matrix rotamatY = Matrix::CreateRotationY(XMConvertToRadians(i * 36)+time*0.05f);
+	//		//回転合成
+	//		Matrix rotmat = rotamatY;
+	//		//平行移動
+	//		Matrix transmat = Matrix::CreateTranslation(20.0f, 0.0f, 0.0f);
+	//		//ワールド行列の合成
+	//		m_worldkyuu[i] = scalemat  * transmat* rotmat;
+	//	}
+	//	//外側
+	//	else if(i < 20)
+	//	{
+	//		//ヨーY（方位）
+	//		Matrix rotamatY = Matrix::CreateRotationY(XMConvertToRadians(i * 36)-time*0.05f);
+	//		//回転合成
+	//		Matrix rotmat =rotamatY;
+	//		//平行移動
+	//		Matrix transmat = Matrix::CreateTranslation(40.0f, 0.0f, 0.0f);
+	//		//ワールド行列の合成
+	//		m_worldkyuu[i] = scalemat  * transmat* rotmat;
+	//	}
+	//	else
+	//	{
+	//		Matrix scalemat = Matrix::CreateScale(3.0f);
+	//		//ヨーY（方位）
+	//		Matrix rotamatY = Matrix::CreateRotationY(XMConvertToRadians(0.0f));
+	//		//ワールド行列の合成
+	//		m_worldkyuu[i] = scalemat;
+	//	}
+	//}
 
 	//回転させるカウンターを図るタイム
-	time++;
+	//time++;
 
+	Keyboard::State g_key = keyboard->GetState();
+
+	//Wキーが押されたら
+	if (g_key.W)
+	{
+		//移動ベクトル（Z座標前進）
+		Vector3 moveV(0, 0, -0.1f);
+		//角度に合わせて移動ベクトルを回転
+		moveV = Vector3::TransformNormal(moveV, head_world);
+		//自機の座標を移動
+		head_pos += moveV;
+	}
+
+	//Sキーが押されたら
+	if (g_key.S)
+	{
+		//移動ベクトル（Z座標後退）
+		Vector3 moveV(0, 0, 0.1f);
+		//角度に合わせて移動ベクトルを回転
+		moveV = Vector3::TransformNormal(moveV, head_world);
+		//自機の座標を移動
+		head_pos += moveV;
+	}
+
+	//Aキーが押されたら
+	if (g_key.A)
+	{
+		//自機の座標を移動
+		tank_angle += 0.1f;
+	}
+
+	//Dキーが押されたら
+	if (g_key.D)
+	{
+		//自機の座標を移動
+		tank_angle -= 0.1f;
+	}
+
+	//自機のワールド行列を計算
+	{
+		Matrix rotmat = Matrix::CreateRotationY(tank_angle);
+		Matrix transmat = Matrix::CreateTranslation(head_pos);
+		head_world = rotmat *transmat;
+	}
 
 }
 
@@ -231,16 +306,30 @@ void Game::Render()
 	m_modelGround->Draw(m_d3dContext.Get(),
 		*m_states,m_world,m_view,m_proj);
 
+	//ロボットの頭を描画
+	head->Draw(m_d3dContext.Get(),
+		*m_states, head_world, m_view, m_proj);
 
-	for (int i=0; i < 21; i++)
-	{
-		//球を描画
-		m_modelkyuu->Draw(m_d3dContext.Get(),
-			*m_states,
-			m_worldkyuu[i],
-			m_view,
-			m_proj);
-	}
+	//for (int j = 0; j < 20; j++)
+	//{
+	//	//球を描画
+	//	pot->Draw(m_d3dContext.Get(),
+	//		*m_states,
+	//		m_worldpot[j],
+	//		m_view,
+	//		m_proj);
+	//}
+
+
+	//for (int i=0; i < 21; i++)
+	//{
+	//	//球を描画
+	//	m_modelkyuu->Draw(m_d3dContext.Get(),
+	//		*m_states,
+	//		m_worldkyuu[i],
+	//		m_view,
+	//		m_proj);
+	//}
 
 
 	////描画部分

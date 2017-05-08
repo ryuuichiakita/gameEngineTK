@@ -12,6 +12,7 @@
 #include <SimpleMath.h>
 #include <Model.h>
 #include "DebugCamera.h"
+#include <Keyboard.h>
 
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
@@ -55,7 +56,8 @@ private:
     int                                             m_outputWidth;
     int                                             m_outputHeight;
 
-	float time = 0;
+	float m_time = 0;
+
 
     D3D_FEATURE_LEVEL                               m_featureLevel;
     Microsoft::WRL::ComPtr<ID3D11Device>            m_d3dDevice;
@@ -89,11 +91,19 @@ private:
 	std::unique_ptr<DirectX::Model> m_modelGround;
 
 	std::unique_ptr<DirectX::Model> m_modelkyuu;
+	std::unique_ptr<DirectX::Model> pot;
 
+	std::unique_ptr<DirectX::Model> head;
+	std::unique_ptr<DirectX::Keyboard> keyboard;
 
 	//ãÖÇÃÉèÅ[ÉãÉhçsóÒ
 	DirectX::SimpleMath::Matrix m_worldkyuu[21];
+	DirectX::SimpleMath::Matrix m_worldpot[20];
 
-//#define WORLD_KYUU 10;
+	DirectX::SimpleMath::Vector3 head_pos;
+
+	float tank_angle;
+
+	DirectX::SimpleMath::Matrix head_world;
 
 };
