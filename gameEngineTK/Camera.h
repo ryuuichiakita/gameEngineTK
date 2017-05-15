@@ -17,13 +17,24 @@ public:
 	void Update();
 
 	//ビュー座標を取得
-	DirectX::SimpleMath::Matrix GetviewMatrix();
+	const DirectX::SimpleMath::Matrix &GetviewMatrix();
 
 	//射影行列を取得
-	DirectX::SimpleMath::Matrix GetpProjectionMatrix();
+	const DirectX::SimpleMath::Matrix &GetpProjectionMatrix();
 
 	//視点座標をセット
 	void SetEyePos(DirectX::SimpleMath::Vector3 eyepos);
+	void SetrefPos(DirectX::SimpleMath::Vector3 refpos);
+	void SetUpvec(DirectX::SimpleMath::Vector3 upvec);
+
+	//
+	void SetFovY(float fovY);
+	//
+	void SetAspect(float aspect);
+	//
+	void SetNearClip(float nearclip);
+	//
+	void SetFarClip(float farclip);
 
 
 protected:

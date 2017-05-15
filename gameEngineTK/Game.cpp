@@ -115,7 +115,7 @@ void Game::Initialize(HWND window, int width, int height)
 	}
 	tank_angle = 0;
 	head_pos = Vector3(0,0,0);
-	m_Camera = std::make_unique<Camera>(m_outputWidth, m_outputHeight);
+	m_Camera = std::make_unique<FollowCamera>(m_outputWidth, m_outputHeight);
 }
 
 // Executes the basic game loop.
@@ -240,11 +240,12 @@ void Game::Update(DX::StepTimer const& timer)
 		head_world = rotmat *transmat;
 	}
 
-	m_Camera->SetEyePos(head_pos);
-	
+	m_Camera->SetTargetpos(head_pos);
+	m_Camera->SetTargetAngle(tank_angle);
+
+	m_Camera->Update();
 	m_view = m_Camera->GetviewMatrix();
 	m_proj = m_Camera->GetpProjectionMatrix();
-	m_Camera->Update();
 }
 
 // Draws the scene.
