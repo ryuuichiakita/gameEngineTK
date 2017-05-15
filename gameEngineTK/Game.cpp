@@ -114,6 +114,8 @@ void Game::Initialize(HWND window, int width, int height)
 		m_worldpot[j] = scalemat  * transmat* rotmat;
 	}
 	tank_angle = 0;
+	head_pos = Vector3(0,0,0);
+	m_Camera = std::make_unique<Camera>(m_outputWidth, m_outputHeight);
 }
 
 // Executes the basic game loop.
@@ -148,6 +150,7 @@ void Game::Update(DX::StepTimer const& timer)
 	////ピッチX（仰角）
 	//Matrix rotamatX = Matrix::CreateRotationX(XMConvertToRadians(0.0f));
 
+	
 
 
 
@@ -237,6 +240,11 @@ void Game::Update(DX::StepTimer const& timer)
 		head_world = rotmat *transmat;
 	}
 
+	m_Camera->SetEyePos(head_pos);
+	
+	m_view = m_Camera->GetviewMatrix();
+	m_proj = m_Camera->GetpProjectionMatrix();
+	m_Camera->Update();
 }
 
 // Draws the scene.
@@ -286,10 +294,32 @@ void Game::Render()
 	//	//	↓向き				↓上の設定
 	//	Vector3(0,0,0), Vector3(0,1,0));
 
+	
+	
 	//デバックカメラからビュー行列を取得
-	m_view = m_debugCamera->GetCameraMatrix();
-	m_proj = Matrix::CreatePerspectiveFieldOfView(XM_PI / 4.f,
-		float(m_outputWidth) / float(m_outputHeight), 0.1f, 200.f);
+
+
+	//m_view = m_debugCamera->GetCameraMatrix();
+
+
+
+	//Vector3 eyepos(0, 0, 5.0f);
+	//Vector3 refpos(0, 0, 0);
+	//Vector3 upvec(1, -1, 0);
+	//upvec.Normalize();
+
+	//m_view = Matrix::CreateLookAt(eyepos,refpos,upvec):
+
+	////垂直方向視野
+	//float fovY = XMConvertToRadians(60.0f);
+	////画面の横幅を立幅の比率
+	//float aspect = (float)m_outputWidth/m_outputHeight;
+	////手前の表示限界距離
+	//float nearclip = 0.1f;
+	////奥の表示限界距離
+	//float farclip = 1000.0f;
+	////射影行列を生成
+	//m_proj = Matrix::CreatePerspectiveFieldOfView(fovY,aspect,nearclip,farclip);
 
 	m_effect->SetView(m_view);
 	m_effect->SetProjection(m_proj);

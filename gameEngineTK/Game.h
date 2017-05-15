@@ -14,6 +14,8 @@
 #include "DebugCamera.h"
 #include <Keyboard.h>
 
+#include "Camera.h"
+
 // A basic game implementation that creates a D3D11 device and
 // provides a game loop.
 class Game
@@ -106,4 +108,6 @@ private:
 
 	DirectX::SimpleMath::Matrix head_world;
 
+
+	std::unique_ptr<Camera>m_Camera;
 };
