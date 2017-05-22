@@ -14,7 +14,7 @@ public:
 
 	virtual ~Camera();
 
-	void Update();
+	virtual void Update();
 
 	//ƒrƒ…[À•W‚ğæ“¾
 	const DirectX::SimpleMath::Matrix &GetviewMatrix();

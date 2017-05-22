@@ -116,6 +116,12 @@ void Game::Initialize(HWND window, int width, int height)
 	tank_angle = 0;
 	head_pos = Vector3(0,0,0);
 	m_Camera = std::make_unique<FollowCamera>(m_outputWidth, m_outputHeight);
+
+	// カメラの生成
+	m_Camera = std::make_unique<FollowCamera>(
+		m_outputWidth, m_outputHeight);
+	// カメラにキーボードをセット
+	m_Camera->SetKeyboard(keyboard.get());
 }
 
 // Executes the basic game loop.
@@ -238,9 +244,13 @@ void Game::Update(DX::StepTimer const& timer)
 		Matrix rotmat = Matrix::CreateRotationY(tank_angle);
 		Matrix transmat = Matrix::CreateTranslation(head_pos);
 		head_world = rotmat *transmat;
+
+
+		//足（2つ目）
+
 	}
 
-	m_Camera->SetTargetpos(head_pos);
+	m_Camera->SetTargetPos(head_pos);
 	m_Camera->SetTargetAngle(tank_angle);
 
 	m_Camera->Update();

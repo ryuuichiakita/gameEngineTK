@@ -108,6 +108,7 @@ private:
 
 	DirectX::SimpleMath::Matrix head_world;
 
+	DirectX::SimpleMath::Matrix head_world2;
 
 	std::unique_ptr<FollowCamera>m_Camera;
 };
