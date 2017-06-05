@@ -13,6 +13,7 @@
     <ClInclude Include="DebugCamera.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="FollowCamera.h" />
+    <ClInclude Include="Obj3d.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp" />
@@ -21,6 +22,7 @@
     <ClCompile Include="DebugCamera.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="FollowCamera.cpp" />
+    <ClCompile Include="Obj3d.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resource.rc" />
@@ -36,22 +38,25 @@
     </Manifest>
   </ItemGroup>
   <ItemGroup>
+    <MeshContentTask Include="Assets\ball.FBX">
+      <Filter>Assets</Filter>
+    </MeshContentTask>
+    <MeshContentTask Include="Assets\base.FBX">
+      <Filter>Assets</Filter>
+    </MeshContentTask>
+    <MeshContentTask Include="Assets\fan.FBX">
+      <Filter>Assets</Filter>
+    </MeshContentTask>
     <MeshContentTask Include="Assets\Ground1m.FBX">
       <Filter>Assets</Filter>
     </MeshContentTask>
-    <MeshContentTask Include="Assets\skyDome.FBX">
+    <MeshContentTask Include="Assets\engine1.FBX">
       <Filter>Assets</Filter>
     </MeshContentTask>
-    <MeshContentTask Include="Assets\kyuu.FBX">
+    <MeshContentTask Include="Assets\gard.FBX">
       <Filter>Assets</Filter>
     </MeshContentTask>
-    <MeshContentTask Include="Assets\Ground200m.FBX">
-      <Filter>Assets</Filter>
-    </MeshContentTask>
-    <MeshContentTask Include="Assets\pot.FBX">
-      <Filter>Assets</Filter>
-    </MeshContentTask>
-    <MeshContentTask Include="Assets\head.FBX">
+    <MeshContentTask Include="Assets\body.FBX">
       <Filter>Assets</Filter>
     </MeshContentTask>
   </ItemGroup>
