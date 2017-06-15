@@ -1,5 +1,5 @@
 //
-// Game.h
+//Game.h
 //
 
 #pragma once
@@ -16,40 +16,30 @@
 #include "FollowCamera.h"
 #include "Obj3d.h"
 #include <vector>
+#include "Player.h"
+#include "Enemy.h"
 
-// A basic game implementation that creates a D3D11 device and
-// provides a game loop.
+//A basic game implementation that creates a D3D11 device and
+//provides a game loop.
 class Game
 {
 public:
-
-	enum PLAYER_PARTS
-	{
-		PLAYER_PARTS_BODY,	// 塔
-		PLAYER_PARTS_BASE,	// 基地
-		PLAYER_PARTS_ENGINE,	//エンジン
-		PLAYER_PARTS_FAN,	// 換気扇
-		PLAYER_PARTS_GARD,	// 音符
-
-		PLAYER_PARTS_NUM
-	};
-
 	Game();
 
-	// Initialization and management
+	//Initialization and management
 	void Initialize(HWND window, int width, int height);
 
-	// Basic game loop
+	//Basic game loop
 	void Tick();
 
-	// Messages
+	//Messages
 	void OnActivated();
 	void OnDeactivated();
 	void OnSuspending();
 	void OnResuming();
 	void OnWindowSizeChanged(int width, int height);
 
-	// Properties
+	//Properties
 	void GetDefaultSize(int& width, int& height) const;
 
 private:
@@ -65,10 +55,13 @@ private:
 
 	void OnDeviceLost();
 
-	// Device resources.
+	//Device resources.
 	HWND                                            m_window;
 	int                                             m_outputWidth;
 	int                                             m_outputHeight;
+
+
+
 
 	D3D_FEATURE_LEVEL                               m_featureLevel;
 	Microsoft::WRL::ComPtr<ID3D11Device>            m_d3dDevice;
@@ -81,7 +74,7 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView>  m_renderTargetView;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView>  m_depthStencilView;
 
-	// Rendering loop timer.
+	//Rendering loop timer.
 	DX::StepTimer                                   m_timer;
 
 	std::unique_ptr<DirectX::PrimitiveBatch<DirectX::VertexPositionNormal>> m_batch;
@@ -93,35 +86,23 @@ private:
 	DirectX::SimpleMath::Matrix m_view;
 	DirectX::SimpleMath::Matrix m_proj;
 
-	// デバッグカメラ
+	//デバッグカメラ
 	std::unique_ptr<DebugCamera> m_debugCamera;
-	// エフェクトファクトリ
+	//エフェクトファクトリ
 	std::unique_ptr<DirectX::EffectFactory> m_factory;
-	// モデル
+	//モデル
 	Obj3d m_objSkydome;
 	std::unique_ptr<DirectX::Model> m_modelGround;
 	std::unique_ptr<DirectX::Model> m_modelBall;
-	//std::unique_ptr<DirectX::Model> m_modelHead;
-	// 球のワールド行列
-	DirectX::SimpleMath::Matrix m_worldBall[20];
-	// 角度
-	float m_AngleBall;
-	// キーボード
+	//キーボード
 	std::unique_ptr<DirectX::Keyboard> keyboard;
-	// 自機の座標
-	DirectX::SimpleMath::Vector3 tank_pos;
-	// 自機の回転角
-	float tank_angle;
-	//// 自機のワールド行列
-	//DirectX::SimpleMath::Matrix tank_world;
-	//// 
-	//DirectX::SimpleMath::Matrix tank2_world;
-	// 自機のオブジェクト
-	std::vector<Obj3d> m_ObjPlayer;
-	// 自機のギミックに使う角度
-	float m_sinAngle;
 
-	// カメラ
+	//カメラ
 	std::unique_ptr<FollowCamera> m_Camera;
 
+	//プレイヤー
+	std::unique_ptr<Player> m_Player;
+
+	//敵
+	std::vector<std::unique_ptr<Enemy>> m_Enemies;
 };

@@ -3,12 +3,12 @@
 using namespace DirectX;
 using namespace DirectX::SimpleMath;
 
-/// <summary>
-/// コンストラクタ
-/// </summary>
+///<summary>
+///コンストラクタ
+///</summary>
 Camera::Camera(int width, int height)
 {
-	// メンバ変数の初期化
+	//メンバ変数の初期化
 	m_eyepos = Vector3(0, 0, 5.0f);
 	m_refpos = Vector3(0, 0, 0);
 	m_upvec = Vector3(0, 1, 0);
@@ -18,9 +18,9 @@ Camera::Camera(int width, int height)
 	m_nearclip = 0.1f;
 	m_farclip = 1000.0f;
 
-	// ビュー行列を生成
+	//ビュー行列を生成
 	m_view = Matrix::CreateLookAt(m_eyepos, m_refpos, m_upvec);
-	// 射影行列を生成
+	//射影行列を生成
 	m_proj = Matrix::CreatePerspectiveFieldOfView(
 		m_fovY, m_aspect, m_nearclip, m_farclip);
 }
@@ -31,9 +31,9 @@ Camera::~Camera()
 
 void Camera::Update()
 {
-	// ビュー行列を生成
+	//ビュー行列を生成
 	m_view = Matrix::CreateLookAt(m_eyepos, m_refpos, m_upvec);
-	// 射影行列を生成
+	//射影行列を生成
 	m_proj = Matrix::CreatePerspectiveFieldOfView(
 		m_fovY, m_aspect, m_nearclip, m_farclip);
 }

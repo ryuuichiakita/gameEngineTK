@@ -90,59 +90,23 @@ void Game::Initialize(HWND window, int width, int height)
 		, L"Resources/ball.cmo",
 		*m_factory
 	);
-	//m_modelHead = Model::CreateFromCMO(
-	//	m_d3dDevice.Get()
-	//	, L"Resources/head.cmo",
-	//	*m_factory
-	//);
 
-	m_AngleBall = 0.0f;
+	//プレイヤーの生成
+	m_Player = std::make_unique<Player>(keyboard.get());
+	m_Player->Initialize();
 
-	tank_angle = 0.0f;
+	//追従カメラにプレイヤーをセット
+	m_Camera->SetPlayer(m_Player.get());
 
-	//自機パーツのロード
-	m_ObjPlayer.resize(PLAYER_PARTS_NUM);
-	m_ObjPlayer[PLAYER_PARTS_BODY].LoadModel(L"Resources/body.cmo");
-	m_ObjPlayer[PLAYER_PARTS_BASE].LoadModel(L"Resources/base.cmo");
-	m_ObjPlayer[PLAYER_PARTS_ENGINE].LoadModel(L"Resources/engine1.cmo");
-	m_ObjPlayer[PLAYER_PARTS_FAN].LoadModel(L"Resources/fan.cmo");
-	m_ObjPlayer[PLAYER_PARTS_GARD].LoadModel(L"Resources/gard.cmo");
-	//親子関係の構築（子供に親をセット）
-	m_ObjPlayer[PLAYER_PARTS_BASE].SetObjParent(
-		&m_ObjPlayer[PLAYER_PARTS_BODY]);
+	//敵の生成
+	int enemyNum = rand() % 10 + 1;
+	m_Enemies.resize(enemyNum);
+	for (int i = 0; i < enemyNum; i++)
+	{
+		m_Enemies[i] = std::make_unique<Enemy>(keyboard.get());
+		m_Enemies[i]->Initialize();
+	}
 
-	m_ObjPlayer[PLAYER_PARTS_GARD].SetObjParent(
-		&m_ObjPlayer[PLAYER_PARTS_BASE]);
-
-	m_ObjPlayer[PLAYER_PARTS_ENGINE].SetObjParent(
-		&m_ObjPlayer[PLAYER_PARTS_BODY]);
-
-	m_ObjPlayer[PLAYER_PARTS_FAN].SetObjParent(
-		&m_ObjPlayer[PLAYER_PARTS_BODY]);
-
-	//親からのオフセット（ローカルの座標ずれ）
-	//ここでいじる
-	m_ObjPlayer[PLAYER_PARTS_BODY].SetScale(
-		Vector3(2, 2, 2));
-
-	m_ObjPlayer[PLAYER_PARTS_BASE].SetTranslation(
-		Vector3(0, 0.7f, 0));
-
-	m_ObjPlayer[PLAYER_PARTS_GARD].SetTranslation(
-		Vector3(0, 2.0f, 0));
-	m_ObjPlayer[PLAYER_PARTS_GARD].SetScale(
-		Vector3(2, 2, 2));
-
-	m_ObjPlayer[PLAYER_PARTS_ENGINE].SetTranslation(
-		Vector3(0.0f, 0.4f, 0.3f));
-	m_ObjPlayer[PLAYER_PARTS_ENGINE].SetRotation(
-		Vector3(0, XMConvertToRadians(0), 0));
-
-
-	m_ObjPlayer[PLAYER_PARTS_FAN].SetTranslation(
-		Vector3(0, 0.3f, 1.0f));
-
-	m_sinAngle = 0.0f;
 }
 
 //Executes the basic game loop.
@@ -166,144 +130,19 @@ void Game::Update(DX::StepTimer const& timer)
 	//ゲームの毎フレーム処理
 	//デバッグカメラの更新
 	m_debugCamera->Update();
-
-	//角度を加算
-	m_AngleBall += 1.0f;
-
-	//球のワールド行列を計算
-	for (int i = 0; i < 10; i++)
-	{
-		//スケーリング
-		Matrix scalemat = Matrix::CreateScale(1.0f);
-		//ロール
-		Matrix rotmatZ = Matrix::CreateRotationZ(XMConvertToRadians(0.0f));
-		//ピッチ（仰角）
-		Matrix rotmatX = Matrix::CreateRotationX(XMConvertToRadians(0.0f));
-		//ヨー（方位角）
-		Matrix rotmatY = Matrix::CreateRotationY(XMConvertToRadians(360.0f / 10.0f*i + m_AngleBall));
-		//回転行列の合成
-		Matrix rotmat = rotmatZ * rotmatX * rotmatY;
-		//平行移動
-		Matrix transmat = Matrix::CreateTranslation(20, 0, 0);
-		//ワールド行列の合成
-		m_worldBall[i] = rotmat * transmat;
-	}
-
-	for (int i = 0; i < 10; i++)
-	{
-		//スケーリング
-		Matrix scalemat = Matrix::CreateScale(1.0f);
-		//ロール
-		Matrix rotmatZ = Matrix::CreateRotationZ(XMConvertToRadians(0.0f));
-		//ピッチ（仰角）
-		Matrix rotmatX = Matrix::CreateRotationX(XMConvertToRadians(0.0f));
-		//ヨー（方位角）
-		Matrix rotmatY = Matrix::CreateRotationY(XMConvertToRadians(360.0f / 10.0f*i - m_AngleBall));
-		//回転行列の合成
-		Matrix rotmat = rotmatZ * rotmatX * rotmatY;
-		//平行移動
-		Matrix transmat = Matrix::CreateTranslation(40, 0, 0);
-		//ワールド行列の合成
-		m_worldBall[10 + i] = rotmat * transmat;
-	}
-
-	//自機パーツのギミック
-	{
-		//自機の角度を変動
-		Vector3 angle;
-
-		angle = m_ObjPlayer[PLAYER_PARTS_GARD].GetRotation();
-		m_ObjPlayer[PLAYER_PARTS_GARD].SetRotation(
-			angle + Vector3(0.0f, 1.0f, 0));
-
-		angle = m_ObjPlayer[PLAYER_PARTS_FAN].GetRotation();
-		m_ObjPlayer[PLAYER_PARTS_FAN].SetRotation(
-			angle + Vector3(0.0f, 0.5f, 0));
-
-		angle = m_ObjPlayer[PLAYER_PARTS_ENGINE].GetRotation();
-		m_ObjPlayer[PLAYER_PARTS_ENGINE].SetRotation(
-			angle + Vector3(0.0f, 0.5f, 0));
-
-		//サインの引数の角度がだんだん増える
-		m_sinAngle += 0.1f;
-		//ファンの角度がいったりきたりする(-1～+1)
-		float fan_angle = sinf(m_sinAngle) * 3.0f;
-		/*m_ObjPlayer[PLAYER_PARTS_FAN].SetRotation(
-		Vector3(0, 0, fan_angle));*/
-		m_ObjPlayer[PLAYER_PARTS_FAN].SetTranslation(
-			Vector3(sinf(m_sinAngle), 0, cosf(m_sinAngle)*3.0f));
-	}
-
 	//キーボードの状態を取得
 	Keyboard::State g_key = keyboard->GetState();
 
-	//Aキーを押している間
-	if (g_key.A)
-	{
-		//自機の角度を変動
-		float angle = m_ObjPlayer[0].GetRotation().y;
-		m_ObjPlayer[0].SetRotation(
-			Vector3(0, angle + 0.03f, 0));
-	}
+	m_Player->Update();
 
-	//Dキーを押している間
-	if (g_key.D)
-	{
-		//自機の角度を変動
-		float angle = m_ObjPlayer[0].GetRotation().y;
-		m_ObjPlayer[0].SetRotation(
-			Vector3(0, angle - 0.03f, 0));
-	}
-
-	//Wキーを押している間
-	if (g_key.W)
-	{
-		//移動ベクトル
-		Vector3 moveV(0, 0, -0.1f);
-		//今の角度に合わせて移動ベクトルを回転
-		//回転行列
-		float angle = m_ObjPlayer[0].GetRotation().y;
-		Matrix rotmat = Matrix::CreateRotationY(angle);
-		moveV = Vector3::TransformNormal(moveV, rotmat);
-		//自機の座標を移動
-		Vector3 pos = m_ObjPlayer[0].GetTranslation();
-		pos += moveV;
-		m_ObjPlayer[0].SetTranslation(pos);
-	}
-
-	//Sキーを押している間
-	if (g_key.S)
-	{
-		//移動ベクトル
-		Vector3 moveV(0, 0, +0.1f);
-		//回転行列
-		float angle = m_ObjPlayer[0].GetRotation().y;
-		Matrix rotmat = Matrix::CreateRotationY(angle);
-		moveV = Vector3::TransformNormal(moveV, rotmat);
-		//自機の座標を移動
-		Vector3 pos = m_ObjPlayer[0].GetTranslation();
-		pos += moveV;
-		m_ObjPlayer[0].SetTranslation(pos);
-	}
 
 	{//追従カメラ
-		m_Camera->SetTargetPos(tank_pos);
-		m_Camera->SetTargetAngle(tank_angle);
-
 		m_Camera->Update();
 		m_view = m_Camera->GetView();
 		m_proj = m_Camera->GetProj();
 	}
 
 	m_objSkydome.Update();
-
-	for (std::vector<Obj3d>::iterator it = m_ObjPlayer.begin();
-		it != m_ObjPlayer.end();
-		it++)
-	{
-		it->Update();
-	}
-
 }
 
 //Draws the scene.
@@ -354,22 +193,14 @@ void Game::Render()
 		Matrix::Identity,
 		m_view,
 		m_proj);
-	//球を描画
-	for (int i = 0; i < 20; i++)
-	{
-		m_modelBall->Draw(m_d3dContext.Get(),
-			*m_states,
-			m_worldBall[i],
-			m_view,
-			m_proj);
-	}
 
-	for (std::vector<Obj3d>::iterator it = m_ObjPlayer.begin();
-		it != m_ObjPlayer.end();
+	for (std::vector<std::unique_ptr<Enemy>>::iterator it = m_Enemies.begin();
+		it != m_Enemies.end();
 		it++)
 	{
-		it->Draw();
-	}
+		(*it)->Draw();
+	} 
+	m_Player->Draw();
 
 	m_batch->Begin();
 
